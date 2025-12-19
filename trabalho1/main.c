@@ -5,6 +5,7 @@ int main( void ) {
 Matrix *A=NULL;
 Matrix *B=NULL;
 Matrix *C=NULL;
+
 if( !matrix_create( &A ) )
 matrix_print( A );
 else {
@@ -12,6 +13,7 @@ fprintf( stderr, "Erro na alocacao de A como listas encadeadas.\n" );
 return 1;
 }
 if( !matrix_create( &B ) )
+
 matrix_print( B );
 else {
 fprintf( stderr, "Erro na alocacao de B como listas encadeadas.\n" );
