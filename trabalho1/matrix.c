@@ -22,7 +22,7 @@ Matrix* cria_no(Matrix* right_v, Matrix* below_v, int line_v, int column_v, floa
 }
 
 Matrix* cria_matriz_vazia(int m, int n) {
-    // Nó mestre (sentinela principal)
+    // Nó (linha = -1,coluna = -1) 
     Matrix* cabeca_principal = cria_no(NULL, NULL, -1, -1, 0);
     if (!cabeca_principal) return NULL;
 
@@ -157,20 +157,16 @@ int matrix_create(Matrix **m) {
         if (scanf("%d %f", &j, &valor) == 2) {
             matrix_setelem(*m, i, j, valor);
         } else {
-            // Se ler i mas não ler j e valor, o arquivo está mal formatado
+
             return -1;
         }
     }
 
-    // O 0 foi lido pelo scanf("%d", &i). 
-    // O fluxo está pronto para o próximo scanf ler as dimensões da próxima matriz.
     return 0;
 }
 int matrix_print(const Matrix* m) {
     if (m == NULL) return -1;
 
-    // 1. Descobrir as dimensões da matriz
-    // Percorremos os sentinelas para contar quantas linhas e colunas existem
     int max_l = 0;
     int max_c = 0;
 
@@ -186,24 +182,21 @@ int matrix_print(const Matrix* m) {
         aux_c = aux_c->right;
     }
 
-    // Imprime a primeira linha: dimensões
     printf("%d %d\n", max_l, max_c);
 
-    // 2. Percorrer as linhas para imprimir os elementos não nulos
     aux_l = m->below; // Começa no cabeçalho da primeira linha
     while (aux_l != m) {
         Matrix* atual = aux_l->right; // Primeiro nó de dado da linha
         
         while (atual != aux_l) {
-            // Imprime: linha coluna valor
-            // Usamos .1f ou similar para formatar o float como no anexo
+
             printf("%d %d %.1f\n", atual->line, atual->column, atual->info);
             atual = atual->right;
         }
         aux_l = aux_l->below;
     }
 
-    // 3. Imprime o marcador de fim
+
     printf("0\n");
 
     return 0;
@@ -231,9 +224,7 @@ int matrix_destroy(Matrix* m) {
         free(temp_head_linha);
     }
 
-    // 2. Liberar os cabeçalhos de coluna
-    // Nota: Os nós de dados já foram liberados no passo acima, 
-    // pois eles são os mesmos nós. Só restam os sentinelas de coluna.
+
     Matrix* aux_coluna = m->right;
     while (aux_coluna != m) {
         Matrix* temp_head_col = aux_coluna;

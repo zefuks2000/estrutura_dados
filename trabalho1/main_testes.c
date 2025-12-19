@@ -4,7 +4,8 @@
 
 int main() {
     Matrix* M = NULL;
-
+    Matrix *B=NULL;
+    Matrix *C=NULL;
     // 1. O matrix_create vai ler do stdin (que vamos redirecionar do arquivo)
     // Ele deve alocar a cabeça, ler as dimensões e ler os valores.
     printf("Lendo dados e criando matriz...\n");
@@ -18,6 +19,7 @@ int main() {
     // Vamos imprimir para ver se os nós estão nos lugares certos.
     printf("\n--- Resultado da Impressao ---\n");
     matrix_print(M);
+    matrix_print()
    
     // (Aqui você chamaria matrix_destroy(M) futuramente)
     return 0;
