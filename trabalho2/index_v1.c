@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,8 +8,8 @@
 #define MAXSIZE 17
 #define HASH_SIZE 101
 
-// Criação das estruturas usadas: A tabela tem uma quantidade de entradas e cada entrada
-// se liga a um nó de ocorrencia, que guarda a quantidades de ocorrecias (linhas) das palavras
+// Definição das estruturas usada: A tabela tem uma quantidade de entradas e cada entrada
+// se liga a um nó de ocorrencia, que guarda a quantidades de ocorrecias das palavras
 typedef struct OccNode {
     int line;
     struct OccNode *next;
@@ -25,41 +26,15 @@ typedef struct Index {
     char *text_filename;
 } Index;
 
-// Função auxiliar: converte string para minúsculas (in-place)
-static void to_lower_str(char *str) {
-    for (int i = 0; str[i]; i++) {
-        str[i] = (char)tolower((unsigned char)str[i]);
-    }
-}
-
-// Função auxiliar: busca case-insensitive de substring
-static char* stristr(const char *haystack, const char *needle) {
-    if (!*needle) return (char*)haystack;
-    char *h = (char*)haystack;
-    size_t nlen = strlen(needle);
-    while (*h) {
-        if (tolower((unsigned char)*h) == tolower((unsigned char)*needle)) {
-            // Possível correspondência
-            size_t i;
-            for (i = 0; i < nlen && h[i]; i++) {
-                if (tolower((unsigned char)h[i]) != tolower((unsigned char)needle[i]))
-                    break;
-            }
-            if (i == nlen) return h;
-        }
-        h++;
-    }
-    return NULL;
-}
-
 static int hash_function(const char *str) {
     unsigned int h = 0;
     while (*str)
-        h = 31 * h + (unsigned char)tolower((unsigned char)*str++);
+        h = 31 * h + (unsigned char)*str++;
     return h % HASH_SIZE;
 }
 
-/* Essa função busca a palavra no arquivo de texto e monta a lista de ocorrências correspondente */
+/* Essa função busca a palavra no arquivo de texto e monta a lista de ocorrencias correspondente
+*/
 static OccNode* cria_lista_ocorrencias(const char *text_file, const char *key) {
     FILE *fp = fopen(text_file, "r");
     if (!fp) return NULL;
@@ -70,7 +45,7 @@ static OccNode* cria_lista_ocorrencias(const char *text_file, const char *key) {
 
     while (fgets(line, sizeof(line), fp)) {
         line_num++;
-        if (stristr(line, key)) {  // usa busca case-insensitive
+        if (strstr(line, key)) {
             OccNode *node = malloc(sizeof(OccNode));
             if (!node) break;
             node->line = line_num;
@@ -107,7 +82,6 @@ int index_createfrom(const char *key_file, const char *text_file, Index **idx) {
     while (fgets(key, sizeof(key), kf)) {
         key[strcspn(key, "\n\r")] = '\0'; // Remove \n e \r
         if (strlen(key) > 0) {
-            to_lower_str(key);  // Normaliza para minúsculas
             index_put(I, key);
         }
     }
@@ -118,16 +92,11 @@ int index_createfrom(const char *key_file, const char *text_file, Index **idx) {
 }
 
 int index_put(Index *idx, const char *key) {
-    char key_lower[MAXSIZE];
-    strncpy(key_lower, key, MAXSIZE - 1);
-    key_lower[MAXSIZE - 1] = '\0';
-    to_lower_str(key_lower);
-
-    unsigned int h = hash_function(key_lower);
+    unsigned int h = hash_function(key);
     Entry *e = idx->table[h];
 
     while (e) {
-        if (strcmp(e->key, key_lower) == 0)
+        if (strcmp(e->key, key) == 0)
             break;
         e = e->next;
     }
@@ -135,7 +104,7 @@ int index_put(Index *idx, const char *key) {
     if (!e) {
         e = malloc(sizeof(Entry));
         if (!e) return 2;
-        strncpy(e->key, key_lower, MAXSIZE - 1);
+        strncpy(e->key, key, MAXSIZE - 1);
         e->key[MAXSIZE - 1] = '\0';
         e->occurrences = NULL;
         e->next = idx->table[h];
@@ -150,34 +119,29 @@ int index_put(Index *idx, const char *key) {
         free(tmp);
     }
 
-    e->occurrences = cria_lista_ocorrencias(idx->text_filename, key_lower);
+    e->occurrences = cria_lista_ocorrencias(idx->text_filename, key);
     return 0;
 }
 
 int index_get(const Index *idx, const char *key, int **occurrences, int *num_occurrences) {
-    char key_lower[MAXSIZE];
-    strncpy(key_lower, key, MAXSIZE - 1);
-    key_lower[MAXSIZE - 1] = '\0';
-    to_lower_str(key_lower);
-
-    unsigned int h = hash_function(key_lower);
+    unsigned int h = hash_function(key);
     Entry *e = idx->table[h];
 
     while (e) {
-        if (strcmp(e->key, key_lower) == 0)
+        if (strcmp(e->key, key) == 0)
             break;
         e = e->next;
     }
 
-    if (!e) {
-        return 1; // palavra não pertence ao índice
-    }
+if (!e) {
+    return 1; // palavra não pertence ao índice
+}
 
-    if (!e->occurrences) {
-        *num_occurrences = 0;
-        *occurrences = NULL;
-        return 0; // pertence, mas não ocorre
-    }
+if (!e->occurrences) {
+    *num_occurrences = 0;
+    *occurrences = NULL;
+    return 0; // pertence, mas não ocorre
+}
 
     int count = 0;
     OccNode *o = e->occurrences;
